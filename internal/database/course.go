@@ -8,17 +8,17 @@ import (
 
 type Course struct {
 	db          *sql.DB
-	ID          string
+	Id          string
 	Name        string
 	Description string
-	CategoryID  int
+	CategoryID  string
 }
 
 func NewCourse(db *sql.DB) *Course {
 	return &Course{db: db}
 }
 
-func (c *Course) Create(name, description string, categoryID int) (Course, error) {
+func (c *Course) Create(name, description string, categoryID string) (Course, error) {
 	id := uuid.New().String()
 
 	_, err := c.db.Exec("INSERT INTO courses (id, name, description, category_id) VALUES ($1, $2, $3, $4)", id, name, description, categoryID)
@@ -27,7 +27,7 @@ func (c *Course) Create(name, description string, categoryID int) (Course, error
 		return Course{}, err
 	}
 
-	return Course{db: c.db, Name: name, Description: description, CategoryID: categoryID}, nil
+	return Course{db: c.db, Id: id, Name: name, Description: description, CategoryID: categoryID}, nil
 }
 
 func (c *Course) FindAll() ([]Course, error) {
@@ -43,7 +43,7 @@ func (c *Course) FindAll() ([]Course, error) {
 
 	for rows.Next() {
 		var id, name, description string
-		var categoryID int
+		var categoryID string
 
 		err := rows.Scan(&id, &name, &description, &categoryID)
 
@@ -51,7 +51,7 @@ func (c *Course) FindAll() ([]Course, error) {
 			return nil, err
 		}
 
-		courses = append(courses, Course{db: c.db, ID: id, Name: name, Description: description, CategoryID: categoryID})
+		courses = append(courses, Course{db: c.db, Id: id, Name: name, Description: description, CategoryID: categoryID})
 	}
 
 	return courses, nil
